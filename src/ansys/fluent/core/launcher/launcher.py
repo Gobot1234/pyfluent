@@ -129,7 +129,9 @@ def _version_to_dimension(old_arg_val):
         return None
 
 
-class LaunchFluentArgs(TypedDict, total=False):
+class LaunchFluentArgs(
+    TypedDict, total=False
+):  # pylint: disable=missing-class-docstring
     product_version: FluentVersion | str | float | int | None
     dimension: Dimension | int
     precision: Precision | str
@@ -160,7 +162,9 @@ class LaunchFluentArgs(TypedDict, total=False):
     use_podman_compose: bool
 
 
-class SlurmSchedulerOptions(TypedDict, total=False):
+class SlurmSchedulerOptions(
+    TypedDict, total=False
+):  # pylint: disable=missing-class-docstring
     scheduler: Required[Literal["slurm"]]
     scheduler_headnode: str
     scheduler_queue: str
@@ -174,6 +178,8 @@ def launch_fluent(
     mode: Literal[FluentMode.MESHING, "meshing"],
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> Meshing: ...
+
+
 @overload
 def launch_fluent(
     *,
@@ -181,6 +187,8 @@ def launch_fluent(
     mode: Literal[FluentMode.PURE_MESHING, "pure_meshing"],
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> PureMeshing: ...
+
+
 @overload
 def launch_fluent(
     *,
@@ -188,6 +196,8 @@ def launch_fluent(
     mode: Literal[FluentMode.SOLVER, "solver"] = FluentMode.SOLVER,
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> Solver: ...
+
+
 @overload
 def launch_fluent(
     *,
@@ -195,6 +205,8 @@ def launch_fluent(
     mode: Literal[FluentMode.SOLVER_ICING, "solver_icing"],
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> SolverIcing: ...
+
+
 @overload
 def launch_fluent(
     *,
@@ -202,6 +214,8 @@ def launch_fluent(
     mode: Literal[FluentMode.SOLVER_AERO, "solver_aero"] = ...,
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> SolverAero: ...
+
+
 @overload
 def launch_fluent(
     *,
@@ -210,6 +224,8 @@ def launch_fluent(
     mode: FluentMode | str = FluentMode.SOLVER,
     **kwargs: Unpack[LaunchFluentArgs],
 ) -> SlurmFuture: ...
+
+
 @overload
 def launch_fluent(
     *,
