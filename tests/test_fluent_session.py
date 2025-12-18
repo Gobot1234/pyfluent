@@ -44,9 +44,9 @@ def _read_case(session, lightweight_setup=True):
     case_path = download_file("Static_Mixer_main.cas.h5", "pyfluent/static_mixer")
     # Ignore lightweight_setup variable for Fluent < 23.1 because not supported
     if session.get_fluent_version() < FluentVersion.v231:
-        session.settings.file.read(file_name=case_path, file_type="case")
+        session.file.read(file_name=case_path, file_type="case")
     else:
-        session.settings.file.read(
+        session.file.read(
             file_name=case_path, file_type="case", lightweight_setup=lightweight_setup
         )
 
@@ -216,9 +216,9 @@ def test_fluent_connection_properties(
 
 
 def test_fluent_freeze_kill(
-    new_solver_session_wo_exit,
+    new_solver_session,
 ) -> None:
-    session = new_solver_session_wo_exit
+    session = new_solver_session
     _read_case(session=session, lightweight_setup=False)
 
     def _freeze_fluent(s):
@@ -243,13 +243,13 @@ def test_fluent_freeze_kill(
 @pytest.mark.fluent_version(">=23.1")
 def test_interrupt(static_mixer_case_session):
     solver = static_mixer_case_session
-    solver.settings.setup.general.solver.time = "unsteady-2nd-order"
-    solver.settings.solution.initialization.standard_initialize()
-    asynchronous(solver.settings.solution.run_calculation.dual_time_iterate)(
+    solver.setup.general.solver.time = "unsteady-2nd-order"
+    solver.solution.initialization.standard_initialize()
+    asynchronous(solver.solution.run_calculation.dual_time_iterate)(
         time_step_count=100, max_iter_per_step=20
     )
     time.sleep(5)
-    solver.settings.solution.run_calculation.interrupt()
+    solver.solution.run_calculation.interrupt()
     assert solver.scheme.eval("(rpgetvar 'time-step)") < 100
 
 
@@ -292,27 +292,3 @@ def test_fluent_exit_wait():
     with pytest.raises(WaitTypeError):
         session4 = pyfluent.launch_fluent()
         session4.exit(wait="wait")
-
-
-def test_wait_process_finished():
-    meshing_session = pyfluent.launch_fluent(mode="meshing")
-    assert len(dir(meshing_session)) > 2
-    assert meshing_session.is_active()
-    assert meshing_session.tui
-    meshing_session.exit()
-    assert dir(meshing_session) == ["is_active", "wait_process_finished"]
-    assert not meshing_session.is_active()
-    with pytest.raises(AttributeError):
-        meshing_session.tui
-    assert meshing_session.wait_process_finished(wait=5)
-
-    solver_session = pyfluent.launch_fluent()
-    assert len(dir(solver_session)) > 2
-    assert solver_session.is_active()
-    assert solver_session.settings
-    solver_session.exit()
-    assert dir(solver_session) == ["is_active", "wait_process_finished"]
-    assert not solver_session.is_active()
-    with pytest.raises(AttributeError):
-        solver_session.settings
-    assert solver_session.wait_process_finished(wait=5)

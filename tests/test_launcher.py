@@ -240,10 +240,10 @@ def test_case_load():
     session = pyfluent.launch_fluent(case_file_name=case_name)
 
     # Case loaded
-    assert session.settings.setup.boundary_conditions.is_active()
+    assert session.setup.boundary_conditions.is_active()
     # Mesh available because not lightweight
     if not session.get_fluent_version() < FluentVersion.v231:
-        assert session.settings.mesh.quality.is_active()
+        assert session.mesh.quality.is_active()
     # Data not loaded
     assert not session.fields.field_data.is_data_valid()
 
@@ -264,9 +264,9 @@ def test_case_lightweight_setup():
     )
 
     # Case loaded
-    assert session.settings.setup.boundary_conditions.is_active()
+    assert session.setup.boundary_conditions.is_active()
     # Mesh not available because lightweight
-    assert not session.settings.mesh.quality.is_active()
+    assert not session.mesh.quality.is_active()
     # Data not loaded
     assert not session.fields.field_data.is_data_valid()
 
@@ -285,10 +285,10 @@ def test_case_data_load():
     session = pyfluent.launch_fluent(case_data_file_name=case_name)
 
     # Case loaded
-    assert session.settings.setup.boundary_conditions.is_active()
+    assert session.setup.boundary_conditions.is_active()
     # Mesh available because not lightweight
     if not session.get_fluent_version() < FluentVersion.v231:
-        assert session.settings.mesh.quality.is_active()
+        assert session.mesh.quality.is_active()
     # Data loaded
     assert session.fields.field_data.is_data_valid()
 
@@ -661,7 +661,7 @@ def test_docker_compose(monkeypatch):
     case_file_name = examples.download_file(
         "mixing_elbow.cas.h5", "pyfluent/mixing_elbow"
     )
-    solver.settings.file.read_case(file_name=case_file_name)
+    solver.file.read_case(file_name=case_file_name)
     solver.exit()
 
 
@@ -752,10 +752,3 @@ def test_warning_for_deprecated_compose_env_vars(monkeypatch):
     monkeypatch.setattr(pyfluent.config, "use_podman_compose", True)
     with pytest.warns(PyFluentDeprecationWarning):
         ComposeConfig()
-
-
-@pytest.mark.standalone
-@pytest.mark.fluent_version(">=25.1")
-def test_default_launch_mode_is_py():
-    fluent_launch_string, _ = pyfluent.launch_fluent(dry_run=True)
-    assert "-py" in fluent_launch_string
